@@ -41,15 +41,23 @@ def get_odometer_provider() -> OdometerProvider:
     if mode == _MODE_MOCK:
         # Import inside the branch so that LiveOdometerProvider is never loaded
         # in mock mode, and MockOdometerProvider is never loaded in live mode.
-        from app.modules.telematics.providers.mock_provider import MockOdometerProvider  # noqa: PLC0415
+        from app.modules.telematics.providers.mock_provider import (  # noqa: PLC0415
+            MockOdometerProvider,
+        )
 
-        logger.info("Telematics provider: MockOdometerProvider (TELEMATICS_MODE=%s)", mode)
+        logger.info(
+            "Telematics provider: MockOdometerProvider (TELEMATICS_MODE=%s)", mode
+        )
         return MockOdometerProvider()
 
     if mode == _MODE_LIVE:
-        from app.modules.telematics.providers.live_provider import LiveOdometerProvider  # noqa: PLC0415
+        from app.modules.telematics.providers.live_provider import (  # noqa: PLC0415
+            LiveOdometerProvider,
+        )
 
-        logger.info("Telematics provider: LiveOdometerProvider (TELEMATICS_MODE=%s)", mode)
+        logger.info(
+            "Telematics provider: LiveOdometerProvider (TELEMATICS_MODE=%s)", mode
+        )
         return LiveOdometerProvider()
 
     raise ValueError(

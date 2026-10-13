@@ -22,7 +22,10 @@ def _deterministic_odometer(vehicle_id: str) -> float:
     the same output with no randomness.
     """
     char_sum = sum(ord(c) for c in vehicle_id)
-    return _BASE_ODOMETER_KM + (char_sum % 500) * (_ODOMETER_INCREMENT_PER_VEHICLE / 500)
+    return (
+        _BASE_ODOMETER_KM
+        + (char_sum % 500) * (_ODOMETER_INCREMENT_PER_VEHICLE / 500)
+    )
 
 
 def _build_raw_payload(vehicle_id: str, odometer_km: float) -> dict[str, Any]:

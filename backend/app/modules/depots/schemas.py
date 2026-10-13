@@ -7,12 +7,22 @@ from pydantic import BaseModel, Field
 
 
 class DepotCreate(BaseModel):
-    name: str = Field(..., max_length=150, description="Depot name is required and must not exceed 150 characters.")
+    name: str = Field(
+        ...,
+        max_length=150,
+        description=(
+            "Depot name is required and must not exceed 150 characters."
+        ),
+    )
     address: str = Field(..., description="Depot address is required.")
 
 
 class DepotUpdate(BaseModel):
-    name: str | None = Field(None, max_length=150, description="Depot name must not exceed 150 characters.")
+    name: str | None = Field(
+        None,
+        max_length=150,
+        description="Depot name must not exceed 150 characters.",
+    )
     address: str | None = Field(None, description="Enter a valid depot address.")
 
 

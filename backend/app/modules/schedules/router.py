@@ -48,40 +48,40 @@ async def create_schedule(
 
 
 @router.get(
-    "/{scheduleId}",
+    "/{schedule_id}",
     response_model=schemas.Schedule,
     status_code=status.HTTP_200_OK,
 )
 async def get_schedule(
-    scheduleId: UUID,
+    schedule_id: UUID,
     db: AsyncSession = Depends(get_db),
     _: None = Depends(require_role("administrator", "manager")),
 ) -> schemas.Schedule:
-    return await service.get_schedule(db=db, schedule_id=scheduleId)
+    return await service.get_schedule(db=db, schedule_id=schedule_id)
 
 
 @router.put(
-    "/{scheduleId}",
+    "/{schedule_id}",
     response_model=schemas.Schedule,
     status_code=status.HTTP_200_OK,
 )
 async def update_schedule(
-    scheduleId: UUID,
+    schedule_id: UUID,
     body: schemas.ScheduleUpdate,
     db: AsyncSession = Depends(get_db),
     _: None = Depends(require_role("administrator")),
 ) -> schemas.Schedule:
-    return await service.update_schedule(db=db, schedule_id=scheduleId, body=body)
+    return await service.update_schedule(db=db, schedule_id=schedule_id, body=body)
 
 
 @router.delete(
-    "/{scheduleId}",
+    "/{schedule_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_schedule(
-    scheduleId: UUID,
+    schedule_id: UUID,
     db: AsyncSession = Depends(get_db),
     _: None = Depends(require_role("administrator")),
 ) -> Response:
-    await service.delete_schedule(db=db, schedule_id=scheduleId)
+    await service.delete_schedule(db=db, schedule_id=schedule_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

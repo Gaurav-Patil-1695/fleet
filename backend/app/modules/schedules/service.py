@@ -7,8 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.schedule import Schedule as ScheduleModel
 from app.models.vehicle import Vehicle as VehicleModel
 from app.models.vehicle_type import VehicleType as VehicleTypeModel
-from app.repositories.schedule_repository import ScheduleRepository
-from app.repositories.vehicle_repository import VehicleRepository
 from app.services.scheduling_service import recalculate_vehicle_schedule
 from app.modules.schedules.schemas import (
     Schedule,
@@ -27,16 +25,18 @@ async def list_schedules(
     vehicle_class: str | None,
     is_active: bool | None,
 ) -> ScheduleListResponse:
-    repo = ScheduleRepository(db)
     filters = []
     if vehicle_type_id is not None:
         try:
             vt_uuid = UUID(vehicle_type_id)
-        except ValueError:
+        except ValueError as exc:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail={"code": "INVALID_VEHICLE_TYPE_ID", "message": "Vehicle type ID must be a valid UUID."},
-            )
+                detail={
+                    "code": "INVALID_VEHICLE_TYPE_ID",
+                    "message": "Vehicle type ID must be a valid UUID.",
+                },
+            ) from exc
         filters.append(ScheduleModel.vehicle_type_id == vt_uuid)
     if vehicle_class is not None:
         filters.append(ScheduleModel.vehicle_class == vehicle_class)
@@ -85,13 +85,18 @@ async def get_schedule(db: AsyncSession, schedule_id: UUID) -> Schedule:
 
 async def create_schedule(db: AsyncSession, body: ScheduleCreate) -> Schedule:
     # Validate vehicle_type_id exists
-    vt_stmt = select(VehicleTypeModel).where(VehicleTypeModel.id == body.vehicle_type_id)
+    vt_stmt = select(VehicleTypeModel).where(
+        VehicleTypeModel.id == body.vehicle_type_id
+    )
     vt_result = await db.execute(vt_stmt)
     vt_row = vt_result.scalar_one_or_none()
     if vt_row is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"code": "VEHICLE_TYPE_NOT_FOUND", "message": "Vehicle type ID must be a valid UUID."},
+            detail={
+                "code": "VEHICLE_TYPE_NOT_FOUND",
+                "message": "Vehicle type ID must be a valid UUID.",
+            },
         )
 
     # Check for conflict: active schedule already exists for this vehicle_type_id
@@ -109,7 +114,9 @@ async def create_schedule(db: AsyncSession, body: ScheduleCreate) -> Schedule:
                 status_code=status.HTTP_409_CONFLICT,
                 detail={
                     "code": "ACTIVE_SCHEDULE_EXISTS",
-                    "message": "An active schedule already exists for this vehicle type.",
+                    "message": (
+                        "An active schedule already exists for this vehicle type."
+                    ),
                 },
             )
 
@@ -163,7 +170,9 @@ async def update_schedule(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={
                     "code": "ACTIVE_SCHEDULE_EXISTS",
-                    "message": "An active schedule already exists for this vehicle type.",
+                    "message": (
+                        "An active schedule already exists for this vehicle type."
+                    ),
                 },
             )
 
@@ -210,7 +219,9 @@ async def delete_schedule(db: AsyncSession, schedule_id: UUID) -> None:
                 status_code=status.HTTP_409_CONFLICT,
                 detail={
                     "code": "SCHEDULE_IN_USE",
-                    "message": "Cannot delete an active schedule that is in use by vehicles.",
+                    "message": (
+                        "Cannot delete an active schedule that is in use by vehicles."
+                    ),
                 },
             )
 

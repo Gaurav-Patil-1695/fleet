@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     # Application
     APP_ENV: str = "development"
     PORT: int = 8000
-    HOST: str = "0.0.0.0"
+    HOST: str = Field(default="0.0.0.0")  # noqa: S104
     API_BASE_URL: str = "http://localhost:8000"
     DEBUG: bool = True
     WORKERS: int = 2
@@ -63,7 +63,11 @@ class Settings(BaseSettings):
 
     @property
     def cors_allowed_origins_list(self) -> list[str]:
-        return [origin.strip() for origin in self.CORS_ALLOWED_ORIGINS.split(",") if origin.strip()]
+        return [
+            origin.strip()
+            for origin in self.CORS_ALLOWED_ORIGINS.split(",")
+            if origin.strip()
+        ]
 
 
 settings = Settings()

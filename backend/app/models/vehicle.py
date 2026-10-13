@@ -29,14 +29,18 @@ class Vehicle(Base):
     make = Column(String(100), nullable=False)
     model = Column(String(100), nullable=False)
     in_service_date = Column(Date, nullable=False)
-    has_telematics = Column(Boolean, nullable=False, default=False, server_default="false")
+    has_telematics = Column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     last_known_odometer_km = Column(Numeric(10, 1), nullable=True)
     last_odometer_recorded_at = Column(TIMESTAMP(timezone=True), nullable=True)
     last_serviced_odometer_km = Column(Numeric(10, 1), nullable=True)
     last_serviced_at = Column(TIMESTAMP(timezone=True), nullable=True)
     next_service_due_date = Column(Date, nullable=True)
     next_service_due_odometer_km = Column(Numeric(10, 1), nullable=True)
-    status = Column(String(30), nullable=False, default="active", server_default="active")
+    status = Column(
+        String(30), nullable=False, default="active", server_default="active"
+    )
     created_at = Column(
         TIMESTAMP(timezone=True),
         nullable=False,

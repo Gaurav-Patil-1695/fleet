@@ -38,7 +38,9 @@ class Schedule(Base):
     )
 
     # Relationships
-    vehicle_type = relationship("VehicleType", back_populates="schedules", lazy="select")
+    vehicle_type = relationship(
+        "VehicleType", back_populates="schedules", lazy="select"
+    )
 
     def __repr__(self) -> str:
         return (

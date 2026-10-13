@@ -54,7 +54,9 @@ class LiveOdometerProvider(OdometerProvider):
                     dt = dt.replace(tzinfo=timezone.utc)
                 return dt
             except ValueError:
-                logger.warning("Failed to parse timestamp %r; falling back to utcnow", raw)
+                logger.warning(
+                    "Failed to parse timestamp %r; falling back to utcnow", raw
+                )
         return datetime.now(tz=timezone.utc)
 
     def _parse_reading(self, item: dict[str, Any]) -> OdometerReading | None:
@@ -126,7 +128,8 @@ class LiveOdometerProvider(OdometerProvider):
             items = data
         else:
             logger.warning(
-                "Unexpected telematics API response shape: %r; returning empty list", type(data)
+                "Unexpected telematics API response shape: %r; returning empty list",
+                type(data),
             )
             return []
 

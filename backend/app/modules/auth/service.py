@@ -22,7 +22,10 @@ async def login(body: LoginRequest, db: AsyncSession) -> TokenResponse:
     if user is None or not verify_password(body.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "INVALID_CREDENTIALS", "message": "Invalid email or password."},
+            detail={
+                "code": "INVALID_CREDENTIALS",
+                "message": "Invalid email or password.",
+            },
         )
 
     if not user.is_active:
@@ -59,7 +62,10 @@ async def refresh_token(body: RefreshRequest, db: AsyncSession) -> TokenResponse
     """Validate a refresh token and issue a new access token."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail={"code": "INVALID_REFRESH_TOKEN", "message": "Invalid or expired refresh token."},
+        detail={
+            "code": "INVALID_REFRESH_TOKEN",
+            "message": "Invalid or expired refresh token.",
+        },
     )
 
     payload = decode_token(body.refresh_token, is_refresh=True)
@@ -101,7 +107,8 @@ async def refresh_token(body: RefreshRequest, db: AsyncSession) -> TokenResponse
 
 
 async def logout(current_user: User, db: AsyncSession) -> None:
-    """Logout the current user (token invalidation is client-side for stateless JWTs)."""
+    """Logout the current user (token invalidation is client-side for
+    stateless JWTs)."""
     # Stateless JWT: client discards the token.
     # Server-side blocklist can be added here if required.
     return

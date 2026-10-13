@@ -1,5 +1,4 @@
 from uuid import UUID
-from typing import Optional
 import math
 
 from fastapi import HTTPException, status
@@ -40,55 +39,55 @@ async def get_reading(
 
 async def list_readings(
     db: AsyncSession,
-    vehicle_id: Optional[str] = None,
-    source: Optional[str] = None,
-    is_test_mode: Optional[bool] = None,
-    from_: Optional[str] = None,
-    to: Optional[str] = None,
+    vehicle_id: str | None = None,
+    source: str | None = None,
+    is_test_mode: bool | None = None,
+    from_: str | None = None,
+    to: str | None = None,
     page: int = 1,
     page_size: int = 20,
 ) -> ReadingListResponse:
     from datetime import datetime, timezone
 
-    from_dt: Optional[datetime] = None
-    to_dt: Optional[datetime] = None
+    from_dt: datetime | None = None
+    to_dt: datetime | None = None
 
     if from_ is not None:
         try:
             from_dt = datetime.fromisoformat(from_.replace("Z", "+00:00"))
-        except ValueError:
+        except ValueError as exc:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
                     "code": "INVALID_DATE",
                     "message": "'from' must be a valid ISO 8601 date-time value.",
                 },
-            )
+            ) from exc
 
     if to is not None:
         try:
             to_dt = datetime.fromisoformat(to.replace("Z", "+00:00"))
-        except ValueError:
+        except ValueError as exc:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
                     "code": "INVALID_DATE",
                     "message": "'to' must be a valid ISO 8601 date-time value.",
                 },
-            )
+            ) from exc
 
-    vehicle_uuid: Optional[UUID] = None
+    vehicle_uuid: UUID | None = None
     if vehicle_id is not None:
         try:
             vehicle_uuid = UUID(vehicle_id)
-        except ValueError:
+        except ValueError as exc:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail={
                     "code": "INVALID_UUID",
                     "message": "Vehicle ID must be a valid UUID.",
                 },
-            )
+            ) from exc
 
     offset = (page - 1) * page_size
 
@@ -187,7 +186,7 @@ async def create_reading(
         )
 
     # For manual readings, set the recorded_by_user_id to current user
-    recorded_by_user_id: Optional[UUID] = None
+    recorded_by_user_id: UUID | None = None
     if body.source == "manual":
         recorded_by_user_id = current_user.id
     elif body.source == "telematics":
@@ -196,7 +195,8 @@ async def create_reading(
 
     is_test_mode = body.is_test_mode if body.is_test_mode is not None else False
 
-    # Determine actual source stored - if is_test_mode and telematics, use telematics_mock
+    # Determine actual source stored - if is_test_mode and telematics,
+    # use telematics_mock
     stored_source = body.source
     if body.source == "telematics" and is_test_mode:
         stored_source = "telematics_mock"

@@ -10,7 +10,12 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 logger = logging.getLogger(__name__)
 
 
-def _error_response(code: str, message: str, details: dict | None = None, status_code: int = 400) -> JSONResponse:
+def _error_response(
+    code: str,
+    message: str,
+    details: dict | None = None,
+    status_code: int = 400,
+) -> JSONResponse:
     """Build a JSON response conforming to the Error schema {code, message, details}."""
     body: dict = {"code": code, "message": message}
     if details is not None:
@@ -18,7 +23,10 @@ def _error_response(code: str, message: str, details: dict | None = None, status
     return JSONResponse(status_code=status_code, content=body)
 
 
-async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+async def http_exception_handler(
+    request: Request,
+    exc: StarletteHTTPException,
+) -> JSONResponse:
     """Convert Starlette/FastAPI HTTPException into the canonical Error envelope."""
     logger.info(
         "HTTP exception: status=%s detail=%s path=%s",
@@ -31,7 +39,10 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException) 
     return _error_response(code=code, message=message, status_code=exc.status_code)
 
 
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError,
+) -> JSONResponse:
     """Convert Pydantic v2 / FastAPI request-validation errors into the canonical Error envelope."""
     logger.info(
         "Validation error: errors=%s path=%s",
@@ -47,8 +58,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    """Catch-all handler that hides internal details from the client and logs the real error."""
+async def unhandled_exception_handler(
+    request: Request,
+    exc: Exception,
+) -> JSONResponse:
+    """Catch-all handler that hides internal details from the client and logs
+    the real error."""
     logger.exception(
         "Unhandled exception on %s %s",
         request.method,

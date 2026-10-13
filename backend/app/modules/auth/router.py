@@ -36,7 +36,7 @@ async def refresh_token_handler(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
         Depends(
-            require_role(["administrator", "manager", "technician"])
+            require_role("administrator", "manager", "technician")
         )
     ],
 )
@@ -54,7 +54,7 @@ async def logout_handler(
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(
-            require_role(["administrator", "manager", "technician"])
+            require_role("administrator", "manager", "technician")
         )
     ],
 )

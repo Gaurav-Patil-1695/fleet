@@ -1,7 +1,7 @@
-"""Shared FastAPI dependency callables: get_db session, get_current_user, require_role."""
+"""Shared FastAPI dependency callables: get_db session, get_current_user,
+require_role."""
 
-from collections.abc import AsyncGenerator
-from typing import Callable
+from collections.abc import AsyncGenerator, Callable
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -49,7 +49,10 @@ async def get_current_user(
     if user is None or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "USER_NOT_FOUND", "message": "User not found or inactive"},
+            detail={
+                "code": "USER_NOT_FOUND",
+                "message": "User not found or inactive",
+            },
         )
 
     return user
@@ -64,7 +67,9 @@ def require_role(*roles: str) -> Callable:
     satisfy the module-map placement rule.
     """
 
-    async def _check_role(current_user: User = Depends(get_current_user)) -> User:
+    async def _check_role(
+        current_user: User = Depends(get_current_user),
+    ) -> User:
         if current_user.role not in roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

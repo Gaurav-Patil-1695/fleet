@@ -1,7 +1,5 @@
 """JWT extraction and verification middleware for protected routes."""
 
-from typing import Optional
-
 from fastapi import Request, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError
@@ -12,7 +10,7 @@ from app.utils.security import decode_access_token
 _bearer_scheme = HTTPBearer(auto_error=False)
 
 
-async def get_token_from_request(request: Request) -> Optional[str]:
+async def get_token_from_request(request: Request) -> str | None:
     """Extract the Bearer token from the Authorization header, if present."""
     authorization: str = request.headers.get("Authorization", "")
     if authorization.startswith("Bearer "):
@@ -29,12 +27,12 @@ async def verify_token(token: str) -> dict:
     """
     try:
         payload = decode_access_token(token)
-    except JWTError:
+    except JWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from exc
 
     if payload is None:
         raise HTTPException(
@@ -62,7 +60,7 @@ async def get_current_token_payload(request: Request) -> dict:
     return await verify_token(token)
 
 
-async def get_optional_token_payload(request: Request) -> Optional[dict]:
+async def get_optional_token_payload(request: Request) -> dict | None:
     """
     FastAPI dependency: extracts and verifies the JWT from the request.
 

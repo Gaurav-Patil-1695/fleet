@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -18,14 +18,16 @@ class ReadingCreate(BaseModel):
         ...,
         description="Source must be either 'manual' or 'telematics'.",
     )
-    is_test_mode: Optional[bool] = Field(
+    is_test_mode: bool | None = Field(
         None,
         description="Test mode must be true or false.",
     )
-    raw_payload: Optional[Dict[str, Any]] = None
+    raw_payload: dict[str, Any] | None = None
     reading_timestamp: datetime = Field(
         ...,
-        description="Reading timestamp is required and must be a valid date-time value.",
+        description=(
+            "Reading timestamp is required and must be a valid date-time value."
+        ),
     )
 
     @field_validator("vehicle_id", mode="before")
@@ -44,10 +46,10 @@ class ReadingCreate(BaseModel):
             )
         try:
             v_float = float(v)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError) as exc:
             raise ValueError(
                 "Odometer reading is required and must be a non-negative number."
-            )
+            ) from exc
         if v_float < 0:
             raise ValueError(
                 "Odometer reading is required and must be a non-negative number."
@@ -87,11 +89,11 @@ class ReadingCreate(BaseModel):
 class Reading(BaseModel):
     id: UUID
     vehicle_id: UUID
-    recorded_by_user_id: Optional[UUID] = None
+    recorded_by_user_id: UUID | None = None
     odometer_km: float
     source: str
     is_test_mode: bool
-    raw_payload: Optional[Dict[str, Any]] = None
+    raw_payload: dict[str, Any] | None = None
     reading_timestamp: datetime
     created_at: datetime
 
@@ -106,5 +108,5 @@ class Pagination(BaseModel):
 
 
 class ReadingListResponse(BaseModel):
-    data: List[Reading]
+    data: list[Reading]
     pagination: Pagination

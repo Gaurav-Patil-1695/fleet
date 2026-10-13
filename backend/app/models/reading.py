@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Boolean, Column, Numeric, String, Text, func
+from sqlalchemy import Boolean, Column, Numeric, String, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import TIMESTAMP
@@ -27,7 +27,9 @@ class Reading(Base):
     )
     odometer_km = Column(Numeric(10, 1), nullable=False)
     source = Column(String(20), nullable=False)
-    is_test_mode = Column(Boolean, nullable=False, default=False, server_default="false")
+    is_test_mode = Column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     raw_payload = Column(JSONB, nullable=True)
     reading_timestamp = Column(
         TIMESTAMP(timezone=True),

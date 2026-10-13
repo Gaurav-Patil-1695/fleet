@@ -36,4 +36,7 @@ class VehicleType(Base):
     vehicles = relationship("Vehicle", back_populates="vehicle_type", lazy="select")
 
     def __repr__(self) -> str:
-        return f"<VehicleType id={self.id!r} name={self.name!r} vehicle_class={self.vehicle_class!r}>"
+        return (
+            f"<VehicleType id={self.id!r} name={self.name!r}"
+            f" vehicle_class={self.vehicle_class!r}>"
+        )

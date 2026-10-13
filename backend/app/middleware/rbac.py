@@ -5,8 +5,6 @@ Every router imports and injects it; service and repository layers must never
 perform role checks.
 """
 
-from typing import List
-
 from fastapi import Depends, HTTPException, status
 
 from app.middleware.auth_middleware import get_current_token_payload
@@ -18,7 +16,10 @@ def require_role(*roles: str):
 
     Usage::
 
-        @router.get("/some-path", dependencies=[Depends(require_role("administrator", "manager"))])
+        @router.get(
+            "/some-path",
+            dependencies=[Depends(require_role("administrator", "manager"))],
+        )
         async def some_handler(...):
             ...
 
@@ -32,7 +33,8 @@ def require_role(*roles: str):
     Parameters
     ----------
     *roles:
-        One or more role strings from the set {"administrator", "manager", "technician"}.
+        One or more role strings from the set {"administrator", "manager",
+        "technician"}.
         The authenticated user must possess at least one of the listed roles.
 
     Returns
@@ -40,7 +42,7 @@ def require_role(*roles: str):
     A FastAPI dependency callable that resolves to the decoded JWT payload dict
     when the role check passes, or raises HTTP 401 / 403 otherwise.
     """
-    allowed: List[str] = list(roles)
+    allowed: list[str] = list(roles)
 
     async def _check_role(
         payload: dict = Depends(get_current_token_payload),

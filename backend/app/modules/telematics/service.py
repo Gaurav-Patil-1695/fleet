@@ -1,23 +1,21 @@
 from __future__ import annotations
 
-import uuid
-from datetime import datetime
+import logging
 from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
 from app.models.user import User
-from app.modules.telematics.providers.factory import get_provider
+from app.modules.telematics.providers.factory import get_odometer_provider
 from app.modules.telematics.schemas import (
     TelematicsIngestRequest,
     TelematicsIngestResponse,
-    TelematicsReadingItem,
-    IngestError,
 )
 from app.repositories.vehicle_repository import get_vehicle_by_id
 from app.repositories.reading_repository import create_reading
 from app.services.scheduling_service import recalculate_vehicle_service_due
+
+_logger = logging.getLogger(__name__)
 
 
 async def ingest_telematics_readings(
@@ -33,7 +31,7 @@ async def ingest_telematics_readings(
     - persists the reading via the reading repository
     - triggers service-due recalculation
     """
-    provider = get_provider()
+    provider = get_odometer_provider()
     is_test_mode: bool = provider.is_test_mode()
 
     source: str
@@ -60,7 +58,7 @@ async def ingest_telematics_readings(
 
         # Persist the reading
         try:
-            reading = await create_reading(
+            await create_reading(
                 db=db,
                 vehicle_id=item.vehicle_id,
                 recorded_by_user_id=None,
@@ -73,7 +71,10 @@ async def ingest_telematics_readings(
         except Exception as exc:  # noqa: BLE001
             rejected += 1
             errors.append(
-                {"vehicle_id": vehicle_id_str, "reason": f"Failed to persist reading: {exc}"}
+                {
+                    "vehicle_id": vehicle_id_str,
+                    "reason": f"Failed to persist reading: {exc}",
+                }
             )
             continue
 
@@ -88,8 +89,7 @@ async def ingest_telematics_readings(
         except Exception as exc:  # noqa: BLE001
             # Recalculation failure is non-fatal; reading is already accepted
             # Log server-side only; do not surface internal details
-            import logging
-            logging.getLogger(__name__).warning(
+            _logger.warning(
                 "Service-due recalculation failed for vehicle %s: %s",
                 vehicle_id_str,
                 exc,
