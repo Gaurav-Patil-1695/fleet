@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 32" fill="none">
+  <!-- Vehicle icon -->
+  <rect x="1" y="4" width="22" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M23 10h5l4 6v4H23V10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="7" cy="23" r="3" stroke="currentColor" stroke-width="2"/>
+  <circle cx="25" cy="23" r="3" stroke="currentColor" stroke-width="2"/>
+  <!-- Wordmark: Zensar -->
+  <text x="38" y="22" font-family="'Inter','Segoe UI',Arial,sans-serif" font-size="16" font-weight="700" fill="currentColor" letter-spacing="-0.02em">Zensar</text>
+</svg>
